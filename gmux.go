@@ -1,10 +1,11 @@
 package main
 
 import (
-	"bufio"
-	"bytes"
 	"os"
 	"os/exec"
+	"strings"
+
+	"github.com/urfave/cli"
 )
 
 func startServer() {
@@ -15,28 +16,35 @@ func startServer() {
 	}
 }
 
-func getSessions() map[string]struct{} {
-	sessions := make(map[string]struct{})
+func hasSession(name string) bool {
+	cmd := exec.Command("tmux", "has-session", "-t", name)
+	err := cmd.Run()
+	return err == nil
+}
 
-	cmd := exec.Command("tmux", "list-sessions", "-F", "'#{session_name}'")
-	output, err := cmd.Output()
-	// no active sessions, return the empty map
-	if err != nil {
-		return sessions
-	}
+func init() {
+	startServer()
+}
 
-	scanner := bufio.NewScanner(bytes.NewBuffer(output))
-	for scanner.Scan() {
-		sessions[scanner.Text()] = struct{}{}
+func stop(sessionName string) {
+	if sessionName == "" {
+		cmd := exec.Command("tmux", "display-message", "-p", "#S")
+		output, err := cmd.Output()
+		if err != nil {
+			os.Stderr.WriteString("could not determine current tmux session")
+			os.Exit(1)
+		}
+		sessionName = strings.TrimSpace(string(output))
 	}
-	if err := scanner.Err(); err != nil {
-		os.Stderr.WriteString("could not scan list of sessions")
-		os.Exit(1)
-	}
-	return sessions
+	cmd := exec.Command("tmux", "kill-session", "-t", sessionName)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Run()
 }
 
 func main() {
-	startServer()
-	sessions := getSessions()
+	app := cli.NewApp()
+	app.Name = "GMux"
+	app.Usage = "a tmux sessions manager"
+	app.Run(os.Args)
 }
