@@ -40,6 +40,18 @@ func Edit(c *cli.Context) error {
 	return config.Edit(configName)
 }
 
+// Delete handles deleting an existing gmux configuration
+func Delete(c *cli.Context) error {
+	configName := c.Args().First()
+	if configName == "" {
+		return ShowHelp(c)
+	}
+	if !config.Exists(configName) {
+		return fmt.Errorf("config to delete could not be found")
+	}
+	return nil
+}
+
 // Start handles running a gmux config
 func Start(c *cli.Context) error {
 	configName := c.Args().First()

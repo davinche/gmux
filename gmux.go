@@ -36,6 +36,13 @@ func main() {
 			Action:    gmux.Edit,
 		},
 		{
+			Name:      "delete",
+			Aliases:   []string{"remove"},
+			Usage:     "delete a gmux config",
+			ArgsUsage: "config_name",
+			Action:    gmux.Delete,
+		},
+		{
 			Name:      "start",
 			Usage:     "start a tmux session using a gmux config",
 			Action:    gmux.Start,
