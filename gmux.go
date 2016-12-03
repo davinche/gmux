@@ -11,6 +11,7 @@ var VERSION string
 
 func main() {
 	app := cli.NewApp()
+	app.EnableBashCompletion = true
 	app.Name = "GMux"
 	app.Usage = "a tmux sessions manager"
 	app.Version = VERSION
@@ -30,30 +31,34 @@ func main() {
 			ArgsUsage: "config_name",
 		},
 		{
-			Name:      "edit",
-			Usage:     "edit a gmux config",
-			ArgsUsage: "config_name",
-			Action:    gmux.Edit,
+			Name:         "edit",
+			Usage:        "edit a gmux config",
+			ArgsUsage:    "config_name",
+			Action:       gmux.Edit,
+			BashComplete: gmux.BashCompleteList,
 		},
 		{
-			Name:      "delete",
-			Aliases:   []string{"remove"},
-			Usage:     "delete a gmux config",
-			ArgsUsage: "config_name",
-			Action:    gmux.Delete,
+			Name:         "delete",
+			Aliases:      []string{"remove"},
+			Usage:        "delete a gmux config",
+			ArgsUsage:    "config_name",
+			Action:       gmux.Delete,
+			BashComplete: gmux.BashCompleteList,
 		},
 		{
-			Name:      "start",
-			Usage:     "start a tmux session using a gmux config",
-			Action:    gmux.Start,
-			ArgsUsage: "config_name",
+			Name:         "start",
+			Usage:        "start a tmux session using a gmux config",
+			Action:       gmux.Start,
+			ArgsUsage:    "config_name",
+			BashComplete: gmux.BashCompleteList,
 		},
 		{
-			Name:        "stop",
-			Usage:       "stops a tmux session",
-			Description: "Removes a tmux session by running `tmux kill-session -t sessionname`.",
-			ArgsUsage:   "session_name",
-			Action:      gmux.Stop,
+			Name:         "stop",
+			Usage:        "stops a tmux session",
+			Description:  "Removes a tmux session by running `tmux kill-session -t sessionname`.",
+			ArgsUsage:    "session_name",
+			Action:       gmux.Stop,
+			BashComplete: gmux.BashCompleteList,
 		},
 		{
 			Name:    "list",

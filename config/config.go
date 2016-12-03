@@ -250,7 +250,7 @@ func List() error {
 	for _, file := range files {
 		name := file.Name()
 		ext := filepath.Ext(name)
-		fmt.Printf("  %s\n", name[:len(name)-len(ext)])
+		fmt.Printf("%s\n", name[:len(name)-len(ext)])
 	}
 	return nil
 }

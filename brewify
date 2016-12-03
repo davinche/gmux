@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 mkdir -p brew/
-rm -f brew/*
+rm -rf brew/*
 VERSION=$(cat VERSION | cut -d '=' -f 2)
 
 # -----------------------------------------------------------------------------
@@ -13,7 +13,10 @@ HOMEPAGE="https://github.com/davinche/gmux"
 TARNAME="brew/gmux-$VERSION.tar.gz"
 
 echo "Creating $TARNAME..."
-$(tar -C build/macos -czf $TARNAME .)
+tar -C build/macos -cf $TARNAME .
+tar -rf $TARNAME ./autocomplete ./install_completion.sh
+gzip $TARNAME 2> /dev/null
+
 SHA=$(shasum -a 256 $TARNAME | cut -d ' ' -f 1)
 
 echo "Generated Formula.rb..."
@@ -28,6 +31,8 @@ class Gmux < Formula
 
   def install
     bin.install "gmux"
+    prefix.install "autocomplete"
+    prefix.install "install_completion.sh"
   end
 
   test do

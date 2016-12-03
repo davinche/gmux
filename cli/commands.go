@@ -100,6 +100,14 @@ func ShowHelp(c *cli.Context) error {
 	return c.App.Run(args)
 }
 
+// BashCompleteList is used to list the gmux configurations to be used with bash completion
+func BashCompleteList(c *cli.Context) {
+	if c.NArg() > 0 {
+		return
+	}
+	config.List()
+}
+
 // ----------------------------------------------------------------------------
 // TMUX Helpers ---------------------------------------------------------------
 // ----------------------------------------------------------------------------
