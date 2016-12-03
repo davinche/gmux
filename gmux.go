@@ -99,13 +99,13 @@ func main() {
 			Name:      "start",
 			Usage:     "start a tmux session using a gmux config",
 			Action:    start,
-			ArgsUsage: "projectname",
+			ArgsUsage: "project_name",
 		},
 		{
 			Name:        "stop",
 			Usage:       "stops a tmux session",
 			Description: "Removes a tmux session by running `tmux kill-session -t sessionname`.",
-			ArgsUsage:   "[sessname1 sessname2...]",
+			ArgsUsage:   "session_name",
 			Action:      stop,
 		},
 		{
