@@ -68,6 +68,14 @@ func list(c *cli.Context) error {
 	return config.ListProjects()
 }
 
+func edit(c *cli.Context) error {
+	projectName := c.Args().First()
+	if projectName == "" {
+		return showHelp(c)
+	}
+	return config.EditProject(projectName)
+}
+
 func showHelp(c *cli.Context) error {
 	args := append(os.Args[:], "-h")
 	return c.App.Run(args)
@@ -105,6 +113,12 @@ func main() {
 			Aliases: []string{"ls"},
 			Usage:   "lists all available gmux projects",
 			Action:  list,
+		},
+		{
+			Name:      "edit",
+			Usage:     "edit a gmux project configuration",
+			ArgsUsage: "project_name",
+			Action:    edit,
 		},
 	}
 

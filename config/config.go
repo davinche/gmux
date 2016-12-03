@@ -248,6 +248,29 @@ func ListProjects() error {
 	return nil
 }
 
+// EditProject uses the environment's EDITOR to edit the project config
+func EditProject(projectName string) error {
+	editorStr := os.Getenv("EDITOR")
+	if editorStr == "" {
+		return fmt.Errorf("EDITOR variable not defined in env")
+	}
+	projectFile := path.Join(configDir, fmt.Sprintf("%s.yml", projectName))
+	_, err := os.Stat(projectFile)
+	if err != nil {
+		return fmt.Errorf("could not find project file: %s", projectFile)
+	}
+
+	editor, err := exec.LookPath(editorStr)
+	if err != nil {
+		return err
+	}
+
+	if err := syscall.Exec(editor, []string{editorStr, projectFile}, os.Environ()); err != nil {
+		return err
+	}
+	return nil
+}
+
 // AttachToSession attempts to attach to a a currently active tmux session
 func AttachToSession(name string) error {
 	// Replace current context with tmux attach session
