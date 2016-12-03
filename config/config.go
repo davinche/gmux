@@ -319,6 +319,7 @@ func expandPath(p string) string {
 	return p
 }
 
+// returns the path to the project config given the project name
 func getProjectFilePath(projectName string) string {
 	return path.Join(configDir, fmt.Sprintf("%s.json", projectName))
 }
