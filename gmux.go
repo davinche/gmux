@@ -65,9 +65,8 @@ func stop(c *cli.Context) error {
 }
 
 func showHelp(c *cli.Context) error {
-	args := append(os.Args[0:1], "-h")
-	c.App.Run(args)
-	return nil
+	args := append(os.Args[:], "-h")
+	return c.App.Run(args)
 }
 
 func main() {
@@ -85,9 +84,10 @@ func main() {
 
 	app.Commands = []cli.Command{
 		{
-			Name:   "start",
-			Usage:  "start a tmux session using a gmux config",
-			Action: start,
+			Name:      "start",
+			Usage:     "start a tmux session using a gmux config",
+			Action:    start,
+			ArgsUsage: "projectname",
 		},
 		{
 			Name:        "stop",
@@ -98,6 +98,7 @@ func main() {
 		},
 	}
 
+	// Default action to show the help menu
 	app.Action = func(c *cli.Context) error {
 		projectName := c.Args().First()
 		if projectName != "" {
