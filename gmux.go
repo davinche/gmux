@@ -30,6 +30,22 @@ func init() {
 	startServer()
 }
 
+func createNew(c *cli.Context) error {
+	projectName := c.Args().First()
+	if projectName == "" {
+		return showHelp(c)
+	}
+	if config.Exists(projectName) {
+		return fmt.Errorf("project with the same name already exists")
+	}
+
+	newConfig := config.New(projectName)
+	if err := newConfig.Write(); err != nil {
+		return err
+	}
+	return config.EditProject(projectName)
+}
+
 func start(c *cli.Context) error {
 	projectName := c.Args().First()
 	if projectName == "" {
@@ -97,6 +113,12 @@ func main() {
 	}
 
 	app.Commands = []cli.Command{
+		{
+			Name:      "new",
+			Usage:     "create a new gmux project",
+			Action:    createNew,
+			ArgsUsage: "project_name",
+		},
 		{
 			Name:      "start",
 			Usage:     "start a tmux session using a gmux config",

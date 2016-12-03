@@ -162,8 +162,18 @@ func (c *Config) Exec(debug bool) error {
 	return nil
 }
 
+// Write the config to the configurations directory
+func (c *Config) Write() error {
+	filePath := getProjectFilePath(c.Name)
+	data, err := yaml.Marshal(c)
+	if err != nil {
+		return err
+	}
+	return ioutil.WriteFile(filePath, data, 0644)
+}
+
 // New returns a new gmux configuration
-func New(project string) (*Config, error) {
+func New(project string) *Config {
 	config := &Config{
 		Name:    project,
 		Root:    "~/",
@@ -193,23 +203,17 @@ func New(project string) (*Config, error) {
 		},
 	}
 
-	return config, nil
+	return config
 }
 
 // Get returns the config for a given project name
 func Get(project string) (*Config, error) {
 	c := &Config{}
-	configPath := path.Join(configDir, fmt.Sprintf("%s.yml", project))
-	file, err := os.Stat(configPath)
-	if err != nil {
-		return nil, err
+	if !Exists(project) {
+		return nil, fmt.Errorf("could not find project: %s", project)
 	}
 
-	if file.IsDir() {
-		return nil, fmt.Errorf("invalid config: file is a directory")
-	}
-
-	fileBytes, err := ioutil.ReadFile(configPath)
+	fileBytes, err := ioutil.ReadFile(getProjectFilePath(project))
 	if err != nil {
 		return nil, err
 	}
@@ -254,10 +258,9 @@ func EditProject(projectName string) error {
 	if editorStr == "" {
 		return fmt.Errorf("EDITOR variable not defined in env")
 	}
-	projectFile := path.Join(configDir, fmt.Sprintf("%s.yml", projectName))
-	_, err := os.Stat(projectFile)
-	if err != nil {
-		return fmt.Errorf("could not find project file: %s", projectFile)
+
+	if !Exists(projectName) {
+		return fmt.Errorf("could not find project: %s", projectName)
 	}
 
 	editor, err := exec.LookPath(editorStr)
@@ -265,10 +268,19 @@ func EditProject(projectName string) error {
 		return err
 	}
 
-	if err := syscall.Exec(editor, []string{editorStr, projectFile}, os.Environ()); err != nil {
+	if err := syscall.Exec(editor,
+		[]string{editorStr, getProjectFilePath(projectName)},
+		os.Environ()); err != nil {
 		return err
 	}
 	return nil
+}
+
+// Exists check if a gmux project already exists
+func Exists(projectName string) bool {
+	projectFile := getProjectFilePath(projectName)
+	_, err := os.Stat(projectFile)
+	return err == nil
 }
 
 // AttachToSession attempts to attach to a a currently active tmux session
@@ -302,4 +314,8 @@ func expandPath(p string) string {
 		p = strings.Replace(p, "~/", userDir, 1)
 	}
 	return p
+}
+
+func getProjectFilePath(projectName string) string {
+	return path.Join(configDir, fmt.Sprintf("%s.yml", projectName))
 }
