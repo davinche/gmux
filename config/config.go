@@ -49,7 +49,7 @@ func init() {
 	if err != nil {
 		// Create our configs directory if it doesn't exist
 		if os.IsNotExist(err) {
-			err = os.Mkdir(configDir, os.ModeDir)
+			err = os.Mkdir(configDir, 0755)
 			if err != nil {
 				os.Stderr.WriteString(fmt.Sprintf(
 					"error: could not create gmux config directory: err=%q", err))
