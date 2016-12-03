@@ -86,17 +86,17 @@ type Window struct {
 func (c *Config) Exec(debug bool) error {
 	cc := &command.Chain{Debug: debug}
 
-	// CD to tmux project directory
+	// CD to tmux config directory
 	rootAbs, err := filepath.Abs(expandPath(c.Root))
 	if err != nil {
 		if debug {
-			log.Printf("error: could not determine absolute path to project directory: err=%q\n", err)
+			log.Printf("error: could not determine absolute path to config directory: err=%q\n", err)
 		}
 		return err
 	}
 	if err := os.Chdir(rootAbs); err != nil {
 		if debug {
-			log.Printf("error: could not change directory to project root: err=%q; dir=%q\n", err, c.Root)
+			log.Printf("error: could not change directory to config root: err=%q; dir=%q\n", err, c.Root)
 		}
 		return err
 	}
@@ -166,7 +166,7 @@ func (c *Config) Exec(debug bool) error {
 
 // Write the config to the configurations directory
 func (c *Config) Write() error {
-	filePath := getProjectFilePath(c.Name)
+	filePath := getConfigFilePath(c.Name)
 	fmt.Println(filePath)
 	data, err := json.MarshalIndent(c, "", "  ")
 	if err != nil {
@@ -176,9 +176,9 @@ func (c *Config) Write() error {
 }
 
 // New returns a new gmux configuration
-func New(project string) *Config {
+func New(configName string) *Config {
 	config := &Config{
-		Name:    project,
+		Name:    configName,
 		Root:    "~/",
 		Windows: make([]*Window, 3),
 	}
@@ -209,14 +209,14 @@ func New(project string) *Config {
 	return config
 }
 
-// Get returns the config for a given project name
-func Get(project string) (*Config, error) {
+// Get returns the config for a given config name
+func Get(config string) (*Config, error) {
 	c := &Config{}
-	if !Exists(project) {
-		return nil, fmt.Errorf("could not find project: %s", project)
+	if !Exists(config) {
+		return nil, fmt.Errorf("could not find config: %s", config)
 	}
 
-	fileBytes, err := ioutil.ReadFile(getProjectFilePath(project))
+	fileBytes, err := ioutil.ReadFile(getConfigFilePath(config))
 	if err != nil {
 		return nil, err
 	}
@@ -232,16 +232,16 @@ func Get(project string) (*Config, error) {
 }
 
 // GetAndRun gets a projects config and executes it
-func GetAndRun(project string, debug bool) error {
-	c, err := Get(project)
+func GetAndRun(config string, debug bool) error {
+	c, err := Get(config)
 	if err != nil {
 		return err
 	}
 	return c.Exec(debug)
 }
 
-// ListProjects prints out the list of gmux projects
-func ListProjects() error {
+// List prints out the list of gmux projects
+func List() error {
 	files, err := ioutil.ReadDir(configDir)
 	if err != nil {
 		return err
@@ -255,15 +255,15 @@ func ListProjects() error {
 	return nil
 }
 
-// EditProject uses the environment's EDITOR to edit the project config
-func EditProject(projectName string) error {
+// Edit uses the environment's EDITOR to edit the config
+func Edit(config string) error {
 	editorStr := os.Getenv("EDITOR")
 	if editorStr == "" {
 		return fmt.Errorf("EDITOR variable not defined in env")
 	}
 
-	if !Exists(projectName) {
-		return fmt.Errorf("could not find project: %s", projectName)
+	if !Exists(config) {
+		return fmt.Errorf("could not find config: %s", config)
 	}
 
 	editor, err := exec.LookPath(editorStr)
@@ -272,17 +272,17 @@ func EditProject(projectName string) error {
 	}
 
 	if err := syscall.Exec(editor,
-		[]string{editorStr, getProjectFilePath(projectName)},
+		[]string{editorStr, getConfigFilePath(config)},
 		os.Environ()); err != nil {
 		return err
 	}
 	return nil
 }
 
-// Exists check if a gmux project already exists
-func Exists(projectName string) bool {
-	projectFile := getProjectFilePath(projectName)
-	_, err := os.Stat(projectFile)
+// Exists check if a gmux config already exists
+func Exists(config string) bool {
+	configFile := getConfigFilePath(config)
+	_, err := os.Stat(configFile)
 	return err == nil
 }
 
@@ -319,7 +319,7 @@ func expandPath(p string) string {
 	return p
 }
 
-// returns the path to the project config given the project name
-func getProjectFilePath(projectName string) string {
-	return path.Join(configDir, fmt.Sprintf("%s.json", projectName))
+// returns the path to the config given the config name
+func getConfigFilePath(configName string) string {
+	return path.Join(configDir, fmt.Sprintf("%s.json", configName))
 }

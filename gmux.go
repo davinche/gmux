@@ -25,15 +25,21 @@ func main() {
 	app.Commands = []cli.Command{
 		{
 			Name:      "new",
-			Usage:     "create a new gmux project",
+			Usage:     "create a new gmux config",
 			Action:    gmux.New,
-			ArgsUsage: "project_name",
+			ArgsUsage: "config_name",
+		},
+		{
+			Name:      "edit",
+			Usage:     "edit a gmux config",
+			ArgsUsage: "config_name",
+			Action:    gmux.Edit,
 		},
 		{
 			Name:      "start",
 			Usage:     "start a tmux session using a gmux config",
 			Action:    gmux.Start,
-			ArgsUsage: "project_name",
+			ArgsUsage: "config_name",
 		},
 		{
 			Name:        "stop",
@@ -45,21 +51,15 @@ func main() {
 		{
 			Name:    "list",
 			Aliases: []string{"ls"},
-			Usage:   "lists all available gmux projects",
+			Usage:   "lists all available gmux configs",
 			Action:  gmux.List,
-		},
-		{
-			Name:      "edit",
-			Usage:     "edit a gmux project configuration",
-			ArgsUsage: "project_name",
-			Action:    gmux.Edit,
 		},
 	}
 
 	// Default action to show the help menu
 	app.Action = func(c *cli.Context) error {
-		projectName := c.Args().First()
-		if projectName != "" {
+		configName := c.Args().First()
+		if configName != "" {
 			return gmux.Start(c)
 		}
 		return gmux.ShowHelp(c)

@@ -16,35 +16,44 @@ func init() {
 
 // New handles the creation of a new gmux config
 func New(c *cli.Context) error {
-	projectName := c.Args().First()
-	if projectName == "" {
+	configName := c.Args().First()
+	if configName == "" {
 		return ShowHelp(c)
 	}
-	if config.Exists(projectName) {
-		return fmt.Errorf("project with the same name already exists")
+	if config.Exists(configName) {
+		return fmt.Errorf("config with the same name already exists")
 	}
 
-	newConfig := config.New(projectName)
+	newConfig := config.New(configName)
 	if err := newConfig.Write(); err != nil {
 		return err
 	}
-	return config.EditProject(projectName)
+	return config.Edit(configName)
+}
+
+// Edit opens a gmux configuration inside the user's editor
+func Edit(c *cli.Context) error {
+	configName := c.Args().First()
+	if configName == "" {
+		return ShowHelp(c)
+	}
+	return config.Edit(configName)
 }
 
 // Start handles running a gmux config
 func Start(c *cli.Context) error {
-	projectName := c.Args().First()
-	if projectName == "" {
+	configName := c.Args().First()
+	if configName == "" {
 		return ShowHelp(c)
 	}
 
-	if hasSession(projectName) {
-		if err := config.AttachToSession(projectName); err != nil {
-			return cli.NewExitError(fmt.Sprintf("could not attach to session %q", projectName), 1)
+	if hasSession(configName) {
+		if err := config.AttachToSession(configName); err != nil {
+			return cli.NewExitError(fmt.Sprintf("could not attach to session %q", configName), 1)
 		}
 	}
 
-	if err := config.GetAndRun(projectName, c.Bool("debug")); err != nil {
+	if err := config.GetAndRun(configName, c.Bool("debug")); err != nil {
 		return cli.NewExitError(err, 1)
 	}
 	return nil
@@ -70,16 +79,7 @@ func Stop(c *cli.Context) error {
 
 // List shows all available gmux configurations
 func List(c *cli.Context) error {
-	return config.ListProjects()
-}
-
-// Edit opens a gmux configuration inside the user's editor
-func Edit(c *cli.Context) error {
-	projectName := c.Args().First()
-	if projectName == "" {
-		return ShowHelp(c)
-	}
-	return config.EditProject(projectName)
+	return config.List()
 }
 
 // ShowHelp shows the help for the given command
@@ -88,7 +88,9 @@ func ShowHelp(c *cli.Context) error {
 	return c.App.Run(args)
 }
 
-// TMUX Helpers
+// ----------------------------------------------------------------------------
+// TMUX Helpers ---------------------------------------------------------------
+// ----------------------------------------------------------------------------
 func startServer() {
 	cmd := exec.Command("tmux", "start-server")
 	if err := cmd.Run(); err != nil {
