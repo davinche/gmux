@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+mkdir -p brew/
+rm -f brew/*
+VERSION=$(cat VERSION | cut -d '=' -f 2)
+
+# -----------------------------------------------------------------------------
+# Formula Variables -----------------------------------------------------------
+# -----------------------------------------------------------------------------
+DESC="Tmux Session Management written in Golang"
+HOMEPAGE="https://github.com/davinche/gmux"
+
+# Tar -------------------------------------------------------------------------
+TARNAME="brew/gmux-$VERSION.tar.gz"
+
+echo "Creating $TARNAME..."
+$(tar -C build/macos -czf $TARNAME .)
+SHA=$(shasum -a 256 $TARNAME | cut -d ' ' -f 1)
+
+echo "Generated Formula.rb..."
+cat << EOF > brew/gmux.rb
+class Gmux < Formula
+  desc "$DESC"
+  homepage "$HOMEPAGE"
+  url "https://github.com/davinche/gmux/releases/download/v$VERSION/gmux-$VERSION.tar.gz"
+  sha256 "$SHA"
+
+  bottle :unneeded
+
+  def install
+    bin.install "gmux"
+  end
+
+  test do
+    system "#{bin}/gmux", "--version"
+  end
+end
+EOF
+
+echo "=========================================="
+echo "*DONE*"
