@@ -13,7 +13,7 @@ MINOR=$(echo $VERSION | cut -d '.' -f 2)
 PATCH=$(echo $VERSION | cut -d '.' -f 3)
 
 # Bump Patch
-if [ -z $1 -o "$1" == "patch" ]; then
+if [ -z "$1" -o "$1" == "patch" ]; then
     PATCH=$(expr $PATCH + 1)
 fi
 
