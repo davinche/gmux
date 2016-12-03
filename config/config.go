@@ -233,6 +233,22 @@ func GetAndRun(project string, debug bool) error {
 	return c.Exec(debug)
 }
 
+// ListProjects prints out the list of gmux projects
+func ListProjects() error {
+	files, err := ioutil.ReadDir(configDir)
+	if err != nil {
+		return err
+	}
+
+	for _, file := range files {
+		name := file.Name()
+		ext := filepath.Ext(name)
+		fmt.Printf("  %s\n", name[:len(name)-len(ext)])
+	}
+	return nil
+}
+
+// AttachToSession attempts to attach to a a currently active tmux session
 func AttachToSession(name string) error {
 	// Replace current context with tmux attach session
 	tmux, err := exec.LookPath("tmux")

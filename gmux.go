@@ -64,6 +64,10 @@ func stop(c *cli.Context) error {
 	return nil
 }
 
+func list(c *cli.Context) error {
+	return config.ListProjects()
+}
+
 func showHelp(c *cli.Context) error {
 	args := append(os.Args[:], "-h")
 	return c.App.Run(args)
@@ -95,6 +99,12 @@ func main() {
 			Description: "Removes a tmux session by running `tmux kill-session -t sessionname`.",
 			ArgsUsage:   "[sessname1 sessname2...]",
 			Action:      stop,
+		},
+		{
+			Name:    "list",
+			Aliases: []string{"ls"},
+			Usage:   "lists all available gmux projects",
+			Action:  list,
 		},
 	}
 
