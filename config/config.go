@@ -153,28 +153,9 @@ func (c *Config) Exec(debug bool) error {
 		return err
 	}
 
-	// Replace current context with tmux attach session
-	tmux, err := exec.LookPath("tmux")
-	if err != nil {
+	if err := AttachToSession(c.Name); err != nil {
 		if debug {
-			log.Println("error: could not locate tmux binary")
-		}
-		return err
-	}
-	args := []string{"tmux"}
-
-	// Attach to the session if we're not already in tmux.
-	// Otherwise, switch from our current session to the new one
-	if os.Getenv("TMUX") == "" {
-		args = append(args, "-u", "attach-session", "-t", c.Name)
-	} else {
-		args = append(args, "-u", "switch-client", "-t", c.Name)
-	}
-
-	// Replace our program context with tmux
-	if sysErr := syscall.Exec(tmux, args, os.Environ()); sysErr != nil {
-		if debug {
-			log.Printf("error: syscall exec: err=%q\n", sysErr)
+			log.Printf("error: could not attach to session: %q\n", err)
 		}
 		return err
 	}
@@ -250,6 +231,29 @@ func GetAndRun(project string, debug bool) error {
 		return err
 	}
 	return c.Exec(debug)
+}
+
+func AttachToSession(name string) error {
+	// Replace current context with tmux attach session
+	tmux, err := exec.LookPath("tmux")
+	if err != nil {
+		return err
+	}
+	args := []string{"tmux"}
+
+	// Attach to the session if we're not already in tmux.
+	// Otherwise, switch from our current session to the new one
+	if os.Getenv("TMUX") == "" {
+		args = append(args, "-u", "attach-session", "-t", name)
+	} else {
+		args = append(args, "-u", "switch-client", "-t", name)
+	}
+
+	// Replace our program context with tmux
+	if sysErr := syscall.Exec(tmux, args, os.Environ()); sysErr != nil {
+		return err
+	}
+	return nil
 }
 
 // perform any path expansions the shell would normally do for us

@@ -1,10 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"strings"
 
+	"github.com/davinche/gmux/config"
 	"github.com/urfave/cli"
 )
 
@@ -26,13 +28,32 @@ func init() {
 	startServer()
 }
 
-func stop(sessionName string) {
+func start(c *cli.Context) error {
+	projectName := c.Args().First()
+	if projectName == "" {
+		return showHelp(c)
+	}
+
+	if hasSession(projectName) {
+		if err := config.AttachToSession(projectName); err != nil {
+			return cli.NewExitError(fmt.Sprintf("could not attach to session %q", projectName), 1)
+		}
+	}
+
+	if err := config.GetAndRun(projectName, c.Bool("debug")); err != nil {
+		return cli.NewExitError(err, 1)
+	}
+	return nil
+}
+
+func stop(c *cli.Context) error {
+	sessionName := c.Args().First()
+
 	if sessionName == "" {
 		cmd := exec.Command("tmux", "display-message", "-p", "#S")
 		output, err := cmd.Output()
 		if err != nil {
-			os.Stderr.WriteString("could not determine current tmux session")
-			os.Exit(1)
+			return cli.NewExitError("could not determine current tmux session", 1)
 		}
 		sessionName = strings.TrimSpace(string(output))
 	}
@@ -40,11 +61,49 @@ func stop(sessionName string) {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Run()
+	return nil
+}
+
+func showHelp(c *cli.Context) error {
+	args := append(os.Args[0:1], "-h")
+	c.App.Run(args)
+	return nil
 }
 
 func main() {
 	app := cli.NewApp()
 	app.Name = "GMux"
 	app.Usage = "a tmux sessions manager"
+	app.Version = "0.1.0"
+
+	app.Flags = []cli.Flag{
+		cli.BoolFlag{
+			Name:  "debug, d",
+			Usage: "enable debug logging",
+		},
+	}
+
+	app.Commands = []cli.Command{
+		{
+			Name:   "start",
+			Usage:  "start a tmux session using a gmux config",
+			Action: start,
+		},
+		{
+			Name:        "stop",
+			Usage:       "stops a tmux session",
+			Description: "Removes a tmux session by running `tmux kill-session -t sessionname`.",
+			ArgsUsage:   "[sessname1 sessname2...]",
+			Action:      stop,
+		},
+	}
+
+	app.Action = func(c *cli.Context) error {
+		projectName := c.Args().First()
+		if projectName != "" {
+			return start(c)
+		}
+		return showHelp(c)
+	}
 	app.Run(os.Args)
 }
