@@ -12,9 +12,9 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/davinche/gmux/command"
+	"encoding/json"
 
-	yaml "gopkg.in/yaml.v2"
+	"github.com/davinche/gmux/command"
 )
 
 // User's Home Directory
@@ -75,13 +75,14 @@ type Config struct {
 // Window represents the configration for a tmux window
 type Window struct {
 	Name   string
-	Layout string   `yaml:",omitempty"`
-	Root   string   `yaml:",omitempty"`
-	Panes  []string `yaml:",omitempty"`
+	Layout string   `json:",omitempty"`
+	Root   string   `json:",omitempty"`
+	Panes  []string `json:",omitempty"`
 }
 
 // Config Methods -------------------------------------------------------------
-// Exec runs the tmux configuration
+
+// Exec runs the gmux configuration
 func (c *Config) Exec(debug bool) error {
 	cc := &command.Chain{Debug: debug}
 
@@ -167,7 +168,7 @@ func (c *Config) Exec(debug bool) error {
 func (c *Config) Write() error {
 	filePath := getProjectFilePath(c.Name)
 	fmt.Println(filePath)
-	data, err := yaml.Marshal(c)
+	data, err := json.MarshalIndent(c, "", "  ")
 	if err != nil {
 		return err
 	}
@@ -219,7 +220,7 @@ func Get(project string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = yaml.Unmarshal(fileBytes, c)
+	err = json.Unmarshal(fileBytes, c)
 	if err != nil {
 		return nil, err
 	}
@@ -319,5 +320,5 @@ func expandPath(p string) string {
 }
 
 func getProjectFilePath(projectName string) string {
-	return path.Join(configDir, fmt.Sprintf("%s.yml", projectName))
+	return path.Join(configDir, fmt.Sprintf("%s.json", projectName))
 }
