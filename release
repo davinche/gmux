@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+pushd `dirname $0` > /dev/null
+SCRIPTPATH=`pwd`
+popd > /dev/null
+
+SOURCEFILE=$SCRIPTPATH/VERSION
+VERSIONSTR=$(grep VERSION $SOURCEFILE)
+VERSION=$(echo $VERSIONSTR | cut -d '=' -f 2)
+
+MAJOR=$(echo $VERSION | cut -d '.' -f 1)
+MINOR=$(echo $VERSION | cut -d '.' -f 2)
+PATCH=$(echo $VERSION | cut -d '.' -f 3)
+
+# Bump Patch
+if [ -z $1 -o "$1" == "patch" ]; then
+    PATCH=$(expr $PATCH + 1)
+fi
+
+# Bump Minor
+if [ "$1" == "minor" ]; then
+    MINOR=$(expr $MINOR + 1)
+    PATCH=0
+fi
+
+# Bump Major
+if [ "$1" == "major" ]; then
+    MAJOR=$(expr $MAJOR + 1)
+    MINOR=0
+    PATCH=0
+fi
+
+NEWVERSION=$MAJOR.$MINOR.$PATCH
+
+echo "Bumping \"$VERSION\" to \"$NEWVERSION\""
+echo "=========================================="
+echo "Updating $SOURCEFILE..."
+sed -i '' -e "s/VERSION=.*/VERSION=$NEWVERSION/g" $SOURCEFILE
+
+git add .
+MESSAGE="release: bumping version from \""$VERSION"\" to \""$NEWVERSION"\""
+GITCMD="git commit -m '"$MESSAGE"'"
+eval $GITCMD
