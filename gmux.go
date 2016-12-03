@@ -10,6 +10,8 @@ import (
 	"github.com/urfave/cli"
 )
 
+var VERSION string
+
 func startServer() {
 	cmd := exec.Command("tmux", "start-server")
 	if err := cmd.Run(); err != nil {
@@ -85,7 +87,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "GMux"
 	app.Usage = "a tmux sessions manager"
-	app.Version = "0.1.0"
+	app.Version = VERSION
 
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
