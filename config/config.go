@@ -55,12 +55,13 @@ func init() {
 					"error: could not create gmux config directory: err=%q", err))
 				os.Exit(1)
 			}
+		} else {
+			// Unknown error occured for our configs directory
+			os.Stderr.WriteString(fmt.Sprintf(
+				"error: could not determine gmux config directory: err=%q", err))
+			os.Exit(1)
 		}
 
-		// Unknown error occured for our configs directory
-		os.Stderr.WriteString(fmt.Sprintf(
-			"error: could not determine gmux config directory: err=%q", err))
-		os.Exit(1)
 	}
 }
 
@@ -165,6 +166,7 @@ func (c *Config) Exec(debug bool) error {
 // Write the config to the configurations directory
 func (c *Config) Write() error {
 	filePath := getProjectFilePath(c.Name)
+	fmt.Println(filePath)
 	data, err := yaml.Marshal(c)
 	if err != nil {
 		return err
