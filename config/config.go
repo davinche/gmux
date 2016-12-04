@@ -248,6 +248,9 @@ func List() error {
 	}
 
 	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
 		name := file.Name()
 		ext := filepath.Ext(name)
 		fmt.Printf("%s\n", name[:len(name)-len(ext)])
