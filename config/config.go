@@ -112,12 +112,12 @@ func (c *Config) Exec(debug bool) error {
 		if w.Root != "" {
 			wRoot = expandPath(w.Root)
 		}
-		quotedWRoot := fmt.Sprintf("%q", wRoot)
+		wRoot = escapePath(wRoot)
 
 		// First window is created automatically, so only create a new window if we're not
 		// looking at the first one
 		if idx != 0 {
-			cc.Add("tmux", "new-window", "-t", winID, "-n", w.Name, "-c", quotedWRoot)
+			cc.Add("tmux", "new-window", "-t", winID, "-n", w.Name, "-c", wRoot)
 		}
 
 		// Set window layout
@@ -134,7 +134,7 @@ func (c *Config) Exec(debug bool) error {
 			// Likewise, first pane is created automatically
 			// so only "split window" for subsequent panes
 			if idx != 0 {
-				cc.Add("tmux", "split-window", "-t", winID, "-c", quotedWRoot)
+				cc.Add("tmux", "split-window", "-t", winID, "-c", wRoot)
 			}
 
 			// execute the command for a particular pane if it is provided
@@ -325,4 +325,8 @@ func expandPath(p string) string {
 // returns the path to the config given the config name
 func getConfigFilePath(configName string) string {
 	return path.Join(configDir, fmt.Sprintf("%s.json", configName))
+}
+
+func escapePath(path string) string {
+	return strings.Replace(path, " ", "\\ ", -1)
 }
