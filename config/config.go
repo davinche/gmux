@@ -282,6 +282,11 @@ func Edit(config string) error {
 	return nil
 }
 
+func Delete(config string) error {
+	configFile := getConfigFilePath(config)
+	return os.RemoveAll(configFile)
+}
+
 // Exists check if a gmux config already exists
 func Exists(config string) bool {
 	configFile := getConfigFilePath(config)

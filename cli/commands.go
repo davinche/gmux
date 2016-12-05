@@ -49,7 +49,7 @@ func Delete(c *cli.Context) error {
 	if !config.Exists(configName) {
 		return fmt.Errorf("config to delete could not be found")
 	}
-	return nil
+	return config.Delete(configName)
 }
 
 // Start handles running a gmux config
