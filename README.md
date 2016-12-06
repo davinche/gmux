@@ -12,7 +12,7 @@ A default editor can specified via `export EDITOR=youreditor`
 
 ## Completion
 
-An install script is provided to enable gmux completion. When installed via homebrew, the script is located under `/usr/local/Cellar/gmux/.././install_completion.sh`
+An install script is provided to enable gmux completion. When installed via homebrew, the script is located under `/usr/local/Cellar/gmux/{VERSION}/install_completion.sh`
 
 Running it will generate a shell completion file under your `$HOME` directory by the name `.gmux.bash` and/or `.gmux.zsh`.  
 Source these files files in your `.bashrc` or `.zshrc` to enable completion.
