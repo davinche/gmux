@@ -120,13 +120,6 @@ func (c *Config) Exec(debug bool) error {
 			cc.Add("tmux", "new-window", "-t", winID, "-n", w.Name, "-c", wRoot)
 		}
 
-		// Set window layout
-		wLayout := "tiled"
-		if w.Layout != "" {
-			wLayout = w.Layout
-		}
-		cc.Add("tmux", "select-layout", "-t", winID, wLayout)
-
 		// Create Panes
 		for idx, p := range w.Panes {
 			paneID := fmt.Sprintf("%s.%d", winID, idx)
@@ -143,6 +136,12 @@ func (c *Config) Exec(debug bool) error {
 			}
 		}
 
+		// Set window layout
+		wLayout := "tiled"
+		if w.Layout != "" {
+			wLayout = w.Layout
+		}
+		cc.Add("tmux", "select-layout", "-t", winID, wLayout)
 	}
 
 	// select the first window and first pane
@@ -282,6 +281,7 @@ func Edit(config string) error {
 	return nil
 }
 
+// Delete an existing gmux config
 func Delete(config string) error {
 	configFile := getConfigFilePath(config)
 	return os.RemoveAll(configFile)

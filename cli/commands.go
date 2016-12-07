@@ -65,7 +65,7 @@ func Start(c *cli.Context) error {
 		}
 	}
 
-	if err := config.GetAndRun(configName, c.Bool("debug")); err != nil {
+	if err := config.GetAndRun(configName, c.GlobalBool("debug")); err != nil {
 		return cli.NewExitError(err, 1)
 	}
 	return nil
