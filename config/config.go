@@ -67,9 +67,10 @@ func init() {
 
 // Config represents the top level structure of a gmux config
 type Config struct {
-	Name    string
-	Root    string
-	Windows []*Window
+	Name      string
+	Root      string
+	Windows   []*Window
+	PreWindow string `json:",omitempty"`
 }
 
 // Window represents the configration for a tmux window
@@ -128,6 +129,11 @@ func (c *Config) Exec(debug bool) error {
 			// so only "split window" for subsequent panes
 			if idx != 0 {
 				cc.Add("tmux", "split-window", "-t", winID, "-c", wRoot)
+			}
+
+			// Execute a pre_window command if one is provided
+			if c.PreWindow != "" {
+				cc.Add("tmux", "send-keys", "-t", paneID, c.PreWindow, "Enter")
 			}
 
 			// execute the command for a particular pane if it is provided
