@@ -67,10 +67,12 @@ func init() {
 
 // Config represents the top level structure of a gmux config
 type Config struct {
-	Name      string
-	Root      string
-	Windows   []*Window
-	PreWindow string `json:",omitempty"`
+	Name          string
+	Root          string
+	Windows       []*Window
+	PreWindow     string `json:",omitempty"`
+	StartupWindow string `json:",omitempty"`
+	StartupPane   int    `json:",omitempty"`
 }
 
 // Window represents the configration for a tmux window
@@ -150,10 +152,13 @@ func (c *Config) Exec(debug bool) error {
 		cc.Add("tmux", "select-layout", "-t", winID, wLayout)
 	}
 
-	// select the first window and first pane
-	firstWindow := fmt.Sprintf("%s:0", c.Name)
-	cc.Add("tmux", "select-window", "-t", firstWindow)
-	cc.Add("tmux", "select-pane", "-t", fmt.Sprintf("%s.0", firstWindow))
+	// Select Starting Window
+	selectWindow := fmt.Sprintf("%s:0", c.Name)
+	if c.StartupWindow != "" {
+		selectWindow = fmt.Sprintf("%s:%s", c.Name, c.StartupWindow)
+	}
+	cc.Add("tmux", "select-window", "-t", selectWindow)
+	cc.Add("tmux", "select-pane", "-t", fmt.Sprintf("%s.%d", selectWindow, c.StartupPane))
 
 	// Run our tmux script
 	if err := cc.Run(); err != nil {
