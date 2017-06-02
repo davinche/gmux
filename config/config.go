@@ -105,8 +105,12 @@ func (c *Config) Exec(debug bool) error {
 	}
 
 	// Create the tmux session
+	firstWindowRoot := rootAbs
+	if c.Windows[0].Root != "" {
+		firstWindowRoot = expandPath(c.Windows[0].Root)
+	}
 	cc.Add("tmux", "start-server")
-	cc.Add("tmux", "new-session", "-d", "-s", c.Name, "-n", c.Windows[0].Name)
+	cc.Add("tmux", "new-session", "-d", "-s", c.Name, "-n", c.Windows[0].Name, "-c", firstWindowRoot)
 
 	// Create the windows
 	for idx, w := range c.Windows {
