@@ -135,7 +135,12 @@ func (c *Config) Exec(debug bool) error {
 			// so only "split window" for subsequent panes
 			if idx != 0 {
 				cc.Add("tmux", "split-window", "-t", winID, "-c", wRoot)
-			}
+			} else {
+                // The wRoot could have been set to something other than the
+                // rootAbs so we should make sure we are in the correct
+                // directory.
+                cc.Add("cd", wRoot)
+            }
 
 			// Execute a pre_window command if one is provided
 			if c.PreWindow != "" {
