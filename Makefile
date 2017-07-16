@@ -38,5 +38,5 @@ mac:
 	env GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.$(VERSION)" -o  build/macos/gmux -v
 
 brew: mac
-	./brewify
+	./bin/brewify
 
