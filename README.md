@@ -3,14 +3,26 @@ Another Tmux Manager... but in Golang
 
 ## Installation
 
-Mac: `brew install davinche/tools/gmux`  
+### Go
 
-## Editor
+~~~
+go get github.com/davinche/gmux
+~~~
+
+### Mac
+
+~~~
+brew install davinche/tools/gmux
+~~~
+
+## Usage
+
+### Editor
 
 Like tmuxinator, gmux uses your shell's **EDITOR** to edit configurations.  
 A default editor can specified via `export EDITOR=youreditor`
 
-## Shell Completion
+### Shell Completion
 
 An install script is provided to enable gmux completion. When installed via homebrew, the script is located under `/usr/local/Cellar/gmux/{VERSION}/install_completion.sh`
 
@@ -19,12 +31,19 @@ Source these files files in your `.bashrc` or `.zshrc` to enable completion.
 
 The installer will provide the option to add these sources to your .shellrc automatically.
 
-## CLI Usage
+## Help for CLI Usage
 
 Once installed, usage information can be viewed via `gmux --help`.
 
-
 ## Configuration
+
+To create a new profile, just run the following command.
+
+~~~
+gmux new <name>
+~~~
+
+This will create a new file in `$HOME/.gmux/<name>`.
 
 ### Example:
 
