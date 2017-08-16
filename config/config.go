@@ -70,6 +70,7 @@ type Config struct {
 	Name          string
 	Root          string
 	Windows       []*Window
+	Attach        bool   `json:",omitempty"`
 	PreWindow     string `json:",omitempty"`
 	StartupWindow string `json:",omitempty"`
 	StartupPane   int    `json:",omitempty"`
@@ -167,6 +168,10 @@ func (c *Config) Exec(debug bool) error {
 	// Run our tmux script
 	if err := cc.Run(); err != nil {
 		return err
+	}
+
+	if !c.Attach {
+		return nil
 	}
 
 	if err := AttachToSession(c.Name); err != nil {
