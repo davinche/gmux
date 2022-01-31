@@ -13,7 +13,7 @@ HOMEPAGE="https://github.com/davinche/gmux"
 TARNAME="brew/gmux-$VERSION.tar.gz"
 
 echo "Creating $TARNAME..."
-tar -C build/macos -cf $TARNAME .
+tar -C build/macos_universal -cf $TARNAME .
 tar -rf $TARNAME ./autocomplete ./install_completion.sh
 gzip $TARNAME 2> /dev/null
 
